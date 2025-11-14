@@ -1,10 +1,11 @@
 from params import ServerParams
+from datagram import Datagram
 import socket
 
 
 class UDPServer:
 
-    def __init__(self, params: ServerParams):
+    def __init__(self, params: ServerParams) -> None:
         self.BUFFER_SIZE = 1024
         self.sock = socket.socket(
             family=socket.AF_INET, type=socket.SOCK_DGRAM
@@ -12,22 +13,24 @@ class UDPServer:
 
         self.sock.bind((params.host, params.port))
 
-        print(f"Server up and listening on {params.host}:{params.port}")
+        print(f"[SERVER] Listening on {params.host}:{params.port}")
 
-    def listen(self):
+    def listen(self) -> None:
         while True:
-            message, address = self.sock.recvfrom(self.BUFFER_SIZE)
+            data, address = self.sock.recvfrom(self.BUFFER_SIZE)
 
-            print(f"Message from client: {message}")
-            print(f"Client IP address: {address}")
+            print(f"[SERVER] Received datagram from {address}")
 
-            self.sock.sendto(self._respond(), address)
+            try:
+                decoded = Datagram.decode(data)
+                print(f"[SERVER] Decoded: {decoded}")
 
-    def _respond(self) -> bytes:
-        bytes_to_send = str.encode(
-            "This is response from UDP server in python"
-        )
-        return bytes_to_send
+                response = Datagram.encode({"status": "OK"})
+            except Exception as e:
+                print(f"[SERVER] Error: {e}")
+                response = Datagram.encode({"status": "ERROR"})
+
+            self.sock.sendto(response, address)
 
 
 if __name__ == '__main__':
@@ -39,4 +42,6 @@ if __name__ == '__main__':
             host=SERVER_HOST,
             port=SERVER_PORT
         )
-    ).listen()
+    )
+
+    server.listen()

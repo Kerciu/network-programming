@@ -1,10 +1,12 @@
+from typing import List, Dict
 from params import ServerParams
+from datagram import Datagram
 import socket
 
 
 class UDPClient():
 
-    def __init__(self, params: ServerParams):
+    def __init__(self, params: ServerParams) -> None:
         self.BUFFER_SIZE = 1024
         self.sock = socket.socket(
             family=socket.AF_INET, type=socket.SOCK_DGRAM
@@ -12,19 +14,17 @@ class UDPClient():
         self.address = params.host
         self.port = params.port
 
-    def send(self, message):
-        self.sock.sendto(
-            self._build_message(message),
-            (self.address, self.port)
-        )
+    def send(self, messages: List[Dict[str, str]]) -> None:
+        for msg in messages:
+            encoded = Datagram.encode(msg)
+            self.sock.sendto(encoded, (self.address, self.port))
 
-        msg, _ = self.sock.recvfrom(self.BUFFER_SIZE)
-        print(f"Message from server: {msg}")
+            response, _ = self.sock.recvfrom(self.BUFFER_SIZE)
+            decoded = Datagram.decode(response)
 
-    def _build_message(self, message) -> bytes:
-        return str.encode(
-            message
-        )
+            print(f"[CLIENT] Response: {decoded}")
+
+        print("[CLIENT] Done.")
 
 
 if __name__ == '__main__':
@@ -38,4 +38,10 @@ if __name__ == '__main__':
         )
     )
 
-    server.send("Hello from UDP Client !!!")
+    messages = [
+            {"name": "Kacper", "task": "UDP"},
+            {"city": "Warsaw", "value": "2137"},
+            {"hello": "world"}
+        ]
+
+    server.send(messages)
