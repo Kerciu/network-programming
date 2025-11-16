@@ -80,6 +80,7 @@ class TCPServer:
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.settimeout(1)
             self.sock.bind((self.host, self.port))
             self.sock.listen()
 
@@ -87,6 +88,9 @@ class TCPServer:
                 try:
                     conn, addr = self.sock.accept()
                     self._handle_client(conn, addr)
+
+                except socket.timeout:
+                    continue
 
                 except Exception as e:
                     print(f"[SERVER] ERROR: {e}")
