@@ -29,7 +29,7 @@ class UDPClient():
 
 if __name__ == '__main__':
     SERVER_HOST = "127.0.0.1"
-    SERVER_PORT = 2137
+    SERVER_PORT = 2138
 
     server = UDPClient(
         ServerParams(
