@@ -21,7 +21,7 @@ class TCPServer:
             block = conn.recv(bytes_left)
 
             if not block:
-                return b''
+                return b""
 
             byte_blocks.append(block)
             bytes_received += len(block)
@@ -42,37 +42,47 @@ class TCPServer:
                 print(f"[SERVER] Client {addr} disconnected.")
                 return
 
-            nodes_count = struct.unpack('!I', nodes_bytes)[0]
+            nodes_count = struct.unpack("!I", nodes_bytes)[0]
             print(f"[SERVER] Waiting for {nodes_count} nodes from {addr}...")
 
             for i in range(nodes_count):
                 data1_bytes = self._read_bytes(conn, 2)
                 if not data1_bytes:
-                    print(f"[SERVER] Client {addr} disconnected during: (node {i}, data1).")
+                    print(
+                        f"[SERVER] Client {addr} disconnected during: (node {i}, data1)."
+                    )
                     break
-                data1 = struct.unpack('!h', data1_bytes)[0]
+                data1 = struct.unpack("!h", data1_bytes)[0]
 
                 data2_bytes = self._read_bytes(conn, 4)
                 if not data2_bytes:
-                    print(f"[SERVER] Client {addr} disconnected during: (node {i}, data2).")
+                    print(
+                        f"[SERVER] Client {addr} disconnected during: (node {i}, data2)."
+                    )
                     break
-                data2 = struct.unpack('!i', data2_bytes)[0]
+                data2 = struct.unpack("!i", data2_bytes)[0]
 
                 str_len_bytes = self._read_bytes(conn, 2)
                 if not str_len_bytes:
-                    print(f"[SERVER] Client {addr} disconnected during: (node {i}, str_len).")
+                    print(
+                        f"[SERVER] Client {addr} disconnected during: (node {i}, str_len)."
+                    )
                     break
-                str_len = struct.unpack('!H', str_len_bytes)[0]
+                str_len = struct.unpack("!H", str_len_bytes)[0]
 
                 str_data = ""
                 if str_len > 0:
                     str_data_bytes = self._read_bytes(conn, str_len)
                     if not str_data_bytes:
-                        print(f"[SERVER] Client {addr} disconnected early (node {i}, str_data).")
+                        print(
+                            f"[SERVER] Client {addr} disconnected early (node {i}, str_data)."
+                        )
                         break
-                    str_data = str_data_bytes.decode('utf-8')
+                    str_data = str_data_bytes.decode("utf-8")
 
-                print(f'[SERVER] [Node: {i}]: data1={data1}, data2={data2}, str_data="{str_data}"')
+                print(
+                    f'[SERVER] [Node: {i}]: data1={data1}, data2={data2}, str_data="{str_data}"'
+                )
 
             print(f"[SERVER] Processing {nodes_count} nodes complete.")
 
@@ -96,8 +106,7 @@ class TCPServer:
                     conn, addr = self.sock.accept()
 
                     client_thread = threading.Thread(
-                        target=self._handle_client,
-                        args=(conn, addr)
+                        target=self._handle_client, args=(conn, addr)
                     )
                     client_thread.start()
 

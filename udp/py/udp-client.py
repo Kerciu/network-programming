@@ -4,13 +4,11 @@ from datagram import Datagram
 import socket
 
 
-class UDPClient():
+class UDPClient:
 
     def __init__(self, params: ServerParams) -> None:
         self.BUFFER_SIZE = 1024
-        self.sock = socket.socket(
-            family=socket.AF_INET, type=socket.SOCK_DGRAM
-        )
+        self.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         self.address = params.host
         self.port = params.port
 
@@ -27,21 +25,16 @@ class UDPClient():
         print("[CLIENT] Done.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     SERVER_HOST = "127.0.0.1"
     SERVER_PORT = 2138
 
-    server = UDPClient(
-        ServerParams(
-            host=SERVER_HOST,
-            port=SERVER_PORT
-        )
-    )
+    server = UDPClient(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
 
     messages = [
-            {"name": "Kacper", "task": "UDP"},
-            {"city": "Warsaw", "value": "2137"},
-            {"hello": "world"}
-        ]
+        {"name": "Kacper", "task": "UDP"},
+        {"city": "Warsaw", "value": "2137"},
+        {"hello": "world"},
+    ]
 
     server.send(messages)

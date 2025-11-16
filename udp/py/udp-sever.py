@@ -7,9 +7,7 @@ class UDPServer:
 
     def __init__(self, params: ServerParams) -> None:
         self.BUFFER_SIZE = 1024
-        self.sock = socket.socket(
-            family=socket.AF_INET, type=socket.SOCK_DGRAM
-        )
+        self.sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
         self.sock.bind((params.host, params.port))
 
@@ -33,15 +31,10 @@ class UDPServer:
             self.sock.sendto(response, address)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     SERVER_HOST = "127.0.0.1"
     SERVER_PORT = 2137
 
-    server = UDPServer(
-        ServerParams(
-            host=SERVER_HOST,
-            port=SERVER_PORT
-        )
-    )
+    server = UDPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
 
     server.listen()
