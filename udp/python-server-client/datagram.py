@@ -27,11 +27,11 @@ class Datagram:
     @staticmethod
     def decode(data: bytes) -> Dict[str, str]:
         if len(data) < 2:
-            raise Exception("Datagram too short")
+            raise Exception("Datagram too short - no data was stored")
 
-        n = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, data[:2])[0]
+        pairs_number = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, data[:2])[0]
 
-        expected_length = 2 + n * (2 * Datagram.FIELDS_LENGTH)
+        expected_length = 2 + pairs_number * (2 * Datagram.FIELDS_LENGTH)
         if len(data) != expected_length:
             raise ValueError(
                 f"Invalid datagram length {len(data)}, expected {expected_length}"
@@ -40,7 +40,7 @@ class Datagram:
         offset = 2
         pairs = {}
 
-        for _ in range(n):
+        for _ in range(pairs_number):
             name = (
                 data[offset : offset + Datagram.FIELDS_LENGTH]
                 .rstrip(b"\0")

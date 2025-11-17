@@ -1,34 +1,21 @@
 #include "datagram.h"
 
+typedef struct sockaddr SOCKADDR;
+
 #define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 2138
 
 int main() {
-    // only fur windows
-    #ifdef _WIN32
-        WSADATA wsaData;
-        int wsa_result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-        if (wsa_result != 0) {
-            fprintf(stderr, "WSAStartup did not succeed: %d\n", wsa_result);
-            return 1;
-        }
-    #endif
-
-    SOCKET sock = INVALID_SOCKET;
-    SOCKADDR_IN server_addr, client_addr;
+    
+    int sock = -1;
+    struct sockaddr_in server_addr, client_addr;
     int client_addr_len = sizeof(client_addr);
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock == INVALID_SOCKET) {
-        fprintf(stderr, "Cannot create socket: %d\n",
-            #ifdef _WIN32
-                WSAGetLastError()
-            #else
-                errno
-            #endif
-        );
+    if (sock == -1) {
+        fprintf(stderr, "Cannot create socket: %d\n");
         return 1;
     }
 
@@ -37,18 +24,9 @@ int main() {
     server_addr.sin_port = htons(SERVER_PORT);
     server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
 
-    if (bind(sock, (SOCKADDR*)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
-        fprintf(stderr, "Bind did not succeed: %d\n",
-            #ifdef _WIN32
-                WSAGetLastError()
-            #else
-                errno
-            #endif
-        );
+    if (bind(sock, (SOCKADDR*)&server_addr, sizeof(server_addr)) == -1) {
+        fprintf(stderr, "Bind did not succeed: %d\n");
         closesocket(sock);
-        #ifdef _WIN32
-            WSACleanup();
-        #endif
         return 1;
     }
 
@@ -57,14 +35,8 @@ int main() {
     while (1) {
         recv_len = recvfrom(sock, buffer, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&client_addr, &client_addr_len);
 
-        if (recv_len == SOCKET_ERROR) {
-            fprintf(stderr, "recvfrom could not succeed: %d\n",
-                #ifdef _WIN32
-                    WSAGetLastError()
-                #else
-                    errno
-                #endif
-            );
+        if (recv_len == -1) {
+            fprintf(stderr, "recvfrom could not succeed: %d\n");
             continue;
         }
 
@@ -101,8 +73,5 @@ int main() {
     }
 
     closesocket(sock);
-    #ifdef _WIN32
-        WSACleanup();
-    #endif
     return 0;
 }

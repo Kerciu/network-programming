@@ -1,35 +1,23 @@
-#ifndef DATAGRAM_H
-#define DATAGRAM_H
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <stdint.h>
+#include <unistd.h> // Dla close()
 
-#ifdef _WIN32
-    #include <Winsock2.h>
-    #include <Ws2tcpip.h>
-    #pragma comment(lib, "Ws2_32.lib")
-#else
-    #include <sys/socket.h>
-    #include <arpa/inet.h>
-    #include <netinet/in.h>
-    #include <unistd.h> // Dla close()
-    #define SOCKET int
-    #define INVALID_SOCKET -1
-    #define SOCKET_ERROR -1
-    #define closesocket(s) close(s)
-    typedef struct sockaddr_in SOCKADDR_IN;
-    typedef struct sockaddr SOCKADDR;
-#endif
 
 #define FIELD_LENGTH 20
 #define MAX_PAIRS 10
 #define MAX_BUFFER_SIZE 1024
 
+
 struct Datagram {
-    uint16_t pair_count;
-    char names[MAX_PAIRS][FIELD_LENGTH + 1];
+    unsigned short pair_count; // 2 bytes = short = uint16_t
+    char names[MAX_PAIRS][FIELD_LENGTH + 1];    // one extra place for null terminator
     char values[MAX_PAIRS][FIELD_LENGTH + 1];
 };
 
@@ -45,7 +33,7 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
         return -1;
     }
 
-    uint16_t pair_count_net = htons(dg->pair_count);
+    unsigned short pair_count_net = htons(dg->pair_count);
     memcpy(buffer, &pair_count_net, 2);
 
     char* ptr = buffer + 2;
@@ -105,5 +93,3 @@ static void print_datagram(const struct Datagram* dg) {
         printf("  - '%s': '%s'\n", dg->names[i], dg->values[i]);
     }
 }
-
-#endif // DATAGRAM_H

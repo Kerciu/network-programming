@@ -1,33 +1,25 @@
 #include "datagram.h"
 
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define closesocket(s) close(s)
+typedef struct sockaddr SOCKADDR;
+
 #define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 2137
 
-int main() {
-    // only for windows
-    #ifdef _WIN32
-        WSADATA wsaData;
-        int wsa_result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-        if (wsa_result != 0) {
-            fprintf(stderr, "WSAStartup did not succeed: %d\n", wsa_result);
-            return 1;
-        }
-    #endif
 
-    SOCKET sock = INVALID_SOCKET;
-    SOCKADDR_IN server_addr;
+int main() {
+
+    int sock = INVALID_SOCKET;
+    struct sockaddr_in server_addr;
+    struct hostent *hp;
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == INVALID_SOCKET) {
-        fprintf(stderr, "Could not create socket: %d\n",
-            #ifdef _WIN32
-                WSAGetLastError()
-            #else
-                errno
-            #endif
-        );
+        fprintf(stderr, "Could not create socket: %d\n");
         return 1;
     }
 
@@ -64,28 +56,16 @@ int main() {
         }
 
         if (sendto(sock, buffer, encoded_len, 0, (SOCKADDR*)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
-            fprintf(stderr, "[CLIENT] sendto did not succeed: %d\n",
-                #ifdef _WIN32
-                    WSAGetLastError()
-                #else
-                    errno
-                #endif
-            );
+            fprintf(stderr, "[CLIENT] sendto did not succeed: %d\n");
             continue;
         }
 
-        SOCKADDR_IN from_addr;
+        struct sockaddr_in from_addr;
         int from_len = sizeof(from_addr);
         recv_len = recvfrom(sock, buffer, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&from_addr, &from_len);
 
         if (recv_len == SOCKET_ERROR) {
-            fprintf(stderr, "[CLIENT] recvfrom did not succeed: %d\n",
-                #ifdef _WIN32
-                    WSAGetLastError()
-                #else
-                    errno
-                #endif
-            );
+            fprintf(stderr, "[CLIENT] recvfrom did not succeed: %d\n");
         } else {
             struct Datagram response_dg;
             if (decode_datagram(buffer, recv_len, &response_dg) == 0) {
@@ -100,8 +80,5 @@ int main() {
     printf("\n[CLIENT] Ended.\n");
 
     closesocket(sock);
-    #ifdef _WIN32
-        WSACleanup();
-    #endif
     return 0;
 }
