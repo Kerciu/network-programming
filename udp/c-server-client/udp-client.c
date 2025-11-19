@@ -1,25 +1,23 @@
 #include "datagram.h"
 
-#define INVALID_SOCKET -1
-#define SOCKET_ERROR -1
-#define closesocket(s) close(s)
-typedef struct sockaddr SOCKADDR;
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
 #define SERVER_HOST "127.0.0.1"
-#define SERVER_PORT 2137
+#define SERVER_PORT 2138
 
 
 int main() {
 
-    int sock = INVALID_SOCKET;
+    int socketfd;
     struct sockaddr_in server_addr;
-    struct hostent *hp;
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
 
-    sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock == INVALID_SOCKET) {
-        fprintf(stderr, "Could not create socket: %d\n");
+    if ((socketfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        fprintf(stderr, "Failed to open socket\n");
         return 1;
     }
 
@@ -31,20 +29,20 @@ int main() {
     struct Datagram messages[3];
 
     messages[0].pair_count = 2;
-    strcpy_s(messages[0].names[0], FIELD_LENGTH + 1, "name");
-    strcpy_s(messages[0].values[0], FIELD_LENGTH + 1, "Kacper");
-    strcpy_s(messages[0].names[1], FIELD_LENGTH + 1, "task");
-    strcpy_s(messages[0].values[1], FIELD_LENGTH + 1, "UDP");
+    snprintf(messages[0].names[0], FIELD_LENGTH + 1, "%s", "name");
+    snprintf(messages[0].values[0], FIELD_LENGTH + 1, "%s", "Kacper");
+    snprintf(messages[0].names[1], FIELD_LENGTH + 1, "%s", "task");
+    snprintf(messages[0].values[1], FIELD_LENGTH + 1, "%s", "UDP");
 
     messages[1].pair_count = 2;
-    strcpy_s(messages[1].names[0], FIELD_LENGTH + 1, "city");
-    strcpy_s(messages[1].values[0], FIELD_LENGTH + 1, "Warsaw");
-    strcpy_s(messages[1].names[1], FIELD_LENGTH + 1, "value");
-    strcpy_s(messages[1].values[1], FIELD_LENGTH + 1, "2137");
+    snprintf(messages[1].names[0], FIELD_LENGTH + 1, "%s", "city");
+    snprintf(messages[1].values[0], FIELD_LENGTH + 1, "%s", "Warsaw");
+    snprintf(messages[1].names[1], FIELD_LENGTH + 1, "%s", "value");
+    snprintf(messages[1].values[1], FIELD_LENGTH + 1, "%s", "2137");
 
     messages[2].pair_count = 1;
-    strcpy_s(messages[2].names[0], FIELD_LENGTH + 1, "hello");
-    strcpy_s(messages[2].values[0], FIELD_LENGTH + 1, "world");
+    snprintf(messages[2].names[0], FIELD_LENGTH + 1, "%s", "hello");
+    snprintf(messages[2].values[0], FIELD_LENGTH + 1, "%s", "world");
 
     for (int i = 0; i < 3; i++) {
         printf("\n[CLIENT] Sending message %d...\n", i + 1);
@@ -55,21 +53,22 @@ int main() {
             continue;
         }
 
-        if (sendto(sock, buffer, encoded_len, 0, (SOCKADDR*)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
-            fprintf(stderr, "[CLIENT] sendto did not succeed: %d\n");
+        if (sendto(socketfd, buffer, encoded_len, 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            fprintf(stderr, "[CLIENT] sendto did not succeed\n");
             continue;
         }
 
         struct sockaddr_in from_addr;
-        int from_len = sizeof(from_addr);
-        recv_len = recvfrom(sock, buffer, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&from_addr, &from_len);
+        socklen_t from_addr_len = sizeof(from_addr);
+        recv_len = recvfrom(socketfd, buffer, MAX_BUFFER_SIZE, 0, (struct sockaddr*)&from_addr, &from_addr_len);
 
-        if (recv_len == SOCKET_ERROR) {
-            fprintf(stderr, "[CLIENT] recvfrom did not succeed: %d\n");
-        } else {
+        if (recv_len < 0) {
+            fprintf(stderr, "[CLIENT] recvfrom did not succeed\n");
+        } 
+        else {
             struct Datagram response_dg;
             if (decode_datagram(buffer, recv_len, &response_dg) == 0) {
-                printf("[CLIENT] Got response:\n");
+                printf("[CLIENT] Got response from %s:%d\n", inet_ntoa(from_addr.sin_addr), ntohs(from_addr.sin_port));
                 print_datagram(&response_dg);
             } else {
                 fprintf(stderr, "[CLIENT] Could not get server response.\n");
@@ -79,6 +78,6 @@ int main() {
 
     printf("\n[CLIENT] Ended.\n");
 
-    closesocket(sock);
+    close(socketfd);
     return 0;
 }
