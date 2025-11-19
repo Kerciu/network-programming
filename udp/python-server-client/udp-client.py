@@ -1,7 +1,9 @@
 from typing import List, Dict
 from params import ServerParams
 from datagram import Datagram
+
 import socket
+import sys
 
 
 class UDPClient:
@@ -30,16 +32,20 @@ class UDPClient:
         with socket.socket(
             family=socket.AF_INET, type=socket.SOCK_DGRAM
         ) as self.socket:
-            for counter in range(10000):
+            for counter in range(100):
                 data = {}
-                data[str(counter)] = "1" * counter
+                data[str(counter)] = "a" * counter
                 print(f"datagram size: {len(data[str(counter)])}")
                 try:
                     encoded_msg = Datagram.encode(data)
                     self.socket.sendto(encoded_msg, (self.address, self.port))
+                    sent_bytes = sys.getsizeof(encoded_msg)
+                    print(f"Sent bytes: {sent_bytes}")
+
                     response, _ = self.socket.recvfrom(self.BUFFER_SIZE)
                     decoded_msg = Datagram.decode(response)
-                    print(f"Decoded response: {response}")
+                    print(f"Decoded response: {decoded_msg}")
+
                 except Exception as e:
                     print(f"ERROR: {e}")
 

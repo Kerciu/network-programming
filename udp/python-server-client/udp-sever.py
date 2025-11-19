@@ -14,7 +14,6 @@ class UDPServer(Server):
             family=socket.AF_INET, type=socket.SOCK_DGRAM
         ) as self.socket:
 
-            # self.socket.settimeout(TIMEOUT)
             self.socket.bind(self.params)
 
             print(f"[SERVER] Listening on {self.host}:{self.port}")
