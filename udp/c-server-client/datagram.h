@@ -6,7 +6,7 @@
 
 
 #define FIELD_LENGTH 20
-#define MAX_PAIRS 10
+#define MAX_PAIRS 50
 #define MAX_BUFFER_SIZE 1024
 
 #define error(msg) {perror(msg); exit(1);}
@@ -67,6 +67,7 @@ static int decode_datagram(const char* buffer, size_t data_len, struct Datagram*
     }
 
     size_t expected_len = 2 + (size_t)dg->pair_count * (2 * FIELD_LENGTH);
+    expected_len = expected_len <= MAX_BUFFER_SIZE ? expected_len : MAX_BUFFER_SIZE;
     if (data_len != expected_len) {
         fprintf(stderr, "Error: Invalid datagram len. Expected %zu, got %zu.\n", expected_len, data_len);
         return -1;

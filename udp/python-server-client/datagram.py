@@ -6,6 +6,7 @@ class Datagram:
 
     NETWORK_BIG_ENDIAN_FORMAT = "!H"
     FIELDS_LENGTH = 20
+    BUFFER_SIZE = 1024
 
     @staticmethod
     def encode(pairs: Dict[str, str]) -> bytes:
@@ -32,6 +33,11 @@ class Datagram:
         pairs_number = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, data[:2])[0]
 
         expected_length = 2 + pairs_number * (2 * Datagram.FIELDS_LENGTH)
+        expected_length = (
+            expected_length
+            if expected_length <= Datagram.BUFFER_SIZE
+            else Datagram.BUFFER_SIZE
+        )
         if len(data) != expected_length:
             raise ValueError(
                 f"Invalid datagram length {len(data)}, expected {expected_length}"

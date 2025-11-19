@@ -36,6 +36,7 @@ int main() {
 
     while (1) {
         recv_len = recvfrom(socketfd, buffer, MAX_BUFFER_SIZE, 0, (struct sockaddr*)&client_addr, &client_addr_len);
+        printf("Received buffer size: %zu", sizeof(recv_len));
 
         if (recv_len < 0) {
             fprintf(stderr, "Could not recive datagram\n");
@@ -53,6 +54,7 @@ int main() {
         int response_len;
 
         char *msg;
+        //hotfix for datagram decode needed as datagram above 1024 have OK status
         if (decode_datagram(buffer, recv_len, &received_dg) == 0) {
             printf("[SERVER] Decoded successfully:\n");
             print_datagram(&received_dg);
@@ -62,9 +64,11 @@ int main() {
             fprintf(stderr, "[SERVER] Error while decoding datagram.\n");
             msg = "ERROR";
         }
-        response_dg.pair_count = 1;
+        response_dg.pair_count = 2;
         snprintf(response_dg.names[0], FIELD_LENGTH + 1, "%s", "status");
         snprintf(response_dg.values[0], FIELD_LENGTH + 1, "%s", msg);
+        snprintf(response_dg.names[1], FIELD_LENGTH + 1, "%s", "dg_size");
+        snprintf(response_dg.values[1], FIELD_LENGTH + 1, "%d", recv_len);
 
         response_len = encode_datagram(&response_dg, response_buffer, MAX_BUFFER_SIZE);
         if (response_len > 0) {

@@ -3,6 +3,7 @@ from datagram import Datagram
 from server import Server
 
 import socket
+import sys
 
 
 TIMEOUT = 5
@@ -25,13 +26,14 @@ class UDPServer(Server):
 
                 try:
                     decoded = Datagram.decode(data)
+                    msg = "OK"
                     print(f"[SERVER] Decoded: {decoded}")
 
-                    response = Datagram.encode({"status": "OK"})
-
                 except Exception as e:
+                    msg = "ERROR"
                     print(f"[SERVER] Error: {e}")
-                    response = Datagram.encode({"status": "ERROR"})
+
+                response = Datagram.encode({"status": msg, "dg_size": f"{len(data)}"})
 
                 self.socket.sendto(response, address)
 
