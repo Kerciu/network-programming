@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  server:
+    build: ./server
+    container_name: z53_udp_server
+    image: z53_server_img
+    cap_add:
+      - NET_ADMIN
+    networks:
+      z53_network:
+        ipv6_address: fd00:1032:ac21:53::2
+    command: ["python", "-u", "udp_server_ipv6.py"]
+
+  client:
+    build: ./client
+    container_name: z53_udp_client
+    image: z53_client_img
+    cap_add:
+      - NET_ADMIN
+    networks:
+      z53_network:
+        ipv6_address: fd00:1032:ac21:53::3
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+    command: ["./client", "fd00:1032:ac21:53::2"]
+
+networks:
+  z53_network:
+    external: true
+    name: z53_network
