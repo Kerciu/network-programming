@@ -59,6 +59,6 @@ if __name__ == "__main__":
     for counter in range(30):
         data = {}
         for i in range(counter):
-            data[f"msg_{counter}_{i}"] = "a" * counter
+            data[f"msg_{counter}_{i}"] = "a" * 20
         datagrams.append(data)
     server.send(messages=datagrams, check_overflow=True)
