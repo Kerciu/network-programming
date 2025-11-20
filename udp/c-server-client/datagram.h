@@ -20,16 +20,14 @@ struct Datagram {
 
 static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffer_len) {
     if (dg->pair_count > MAX_PAIRS) {
-        // fprintf(stderr, "Error: Too much pairs to encode.\n");
-        // return -1;
-        error("Error: Too much pairs to encode.\n");
+        fprintf(stderr, "Error: Too much pairs to encode.\n");
+        return -1;
     }
 
     size_t required_len = 2 + (size_t)dg->pair_count * (2 * FIELD_LENGTH);
     if (buffer_len < required_len) {
-        // fprintf(stderr, "Error: Buffer to small to encode.\n");
-        // return -1;
-        error("Error: Buffer to small to encode.\n")
+        fprintf(stderr, "Error: Buffer to small to encode.\n");
+        return -1;
     }
 
     unsigned short pair_count_net = htons(dg->pair_count);
@@ -52,9 +50,8 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
 
 static int decode_datagram(const char* buffer, size_t data_len, struct Datagram* dg) {
     if (data_len < 2) {
-        // fprintf(stderr, "Errpr: Datagram too short (less than 2 bytes).\n");
-        // return -1;
-        error("Error: Datagram too short (less than 2 bytes).\n");
+        fprintf(stderr, "Errpr: Datagram too short (less than 2 bytes).\n");
+        return -1;
     }
 
     unsigned short pair_count_net;
@@ -67,7 +64,6 @@ static int decode_datagram(const char* buffer, size_t data_len, struct Datagram*
     }
 
     size_t expected_len = 2 + (size_t)dg->pair_count * (2 * FIELD_LENGTH);
-    expected_len = expected_len <= MAX_BUFFER_SIZE ? expected_len : MAX_BUFFER_SIZE;
     if (data_len != expected_len) {
         fprintf(stderr, "Error: Invalid datagram len. Expected %zu, got %zu.\n", expected_len, data_len);
         return -1;
