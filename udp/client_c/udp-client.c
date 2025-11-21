@@ -15,6 +15,7 @@ int main() {
     struct addrinfo hints, *res;
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
+    fflush(stdout);
 
     if ((socketfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         fprintf(stderr, "Failed to open socket\n");

@@ -7,12 +7,13 @@
 #define SERVER_PORT 2138
 
 int main() {
-    
+
     int socketfd;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
+    fflush(stdout);
 
     if ((socketfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         fprintf(stderr, "Error opening socket\n");
