@@ -6,7 +6,8 @@ for every pair:
 [2 + i*(20+20)+20]   20 ASCII bytes – value
 
 ## Server-Client use:
-```
+* To run and test all services just use prepared docker-compose file 
+```sh
 docker-compose up --build
 ```
 
