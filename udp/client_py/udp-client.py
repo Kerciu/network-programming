@@ -50,10 +50,17 @@ class UDPClient:
         while first_fail_len - last_ok_len > 1:
             middle_len = (last_ok_len + first_fail_len) // 2
             bytes_to_encode = middle_len - 2
+
+            if bytes_to_encode <= 0:
+                first_fail_len = middle_len
+                continue
+
             pairs = bytes_to_encode // (2 * Datagram.FIELDS_LENGTH)
             if bytes_to_encode % (2 * Datagram.FIELDS_LENGTH):
                 pairs += 1
-            dg = "{pairs}".format(pairs) + "a" * bytes_to_encode
+
+            dg = f"{pairs}" + "a" * bytes_to_encode
+
             try:
                 self.socket.sendto(dg, (self.address, self.port))
 
@@ -62,14 +69,12 @@ class UDPClient:
             except Exception as e:
                 decoded["status"] = "ERROR"
 
-            if decoded["status"] == "OK":
+            if decoded.get("status") == "OK":
                 last_ok_len = middle_len
             else:
                 first_fail_len = middle_len
 
         print(f"Max server capacity is {last_ok_len} bytes")
-
-
 
 
 if __name__ == "__main__":
@@ -89,7 +94,7 @@ if __name__ == "__main__":
 
     print("Test ex 1.2 - finding max server capacity\n")
     datagrams = []
-    for counter in range(300):
+    for counter in range(100):
         data = {}
         for i in range(counter):
             data[f"msg_{counter}_{i}"] = "a" * 20
