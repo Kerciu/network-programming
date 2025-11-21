@@ -6,8 +6,8 @@ class Datagram:
 
     NETWORK_BIG_ENDIAN_FORMAT = "!H"
     FIELDS_LENGTH = 20
-    MAX_PAIRS = 100
-    BUFFER_SIZE = 1024
+    MAX_PAIRS = 99
+    BUFFER_SIZE = 65507
 
     @staticmethod
     def encode(pairs: Dict[str, str]) -> bytes:

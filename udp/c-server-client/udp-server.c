@@ -53,7 +53,6 @@ int main() {
         int response_len;
 
         char *msg;
-        //hotfix for datagram decode needed as datagram above 1024 have OK status
         if (decode_datagram(buffer, recv_len, &received_dg) == 0) {
             printf("[SERVER] Decoded successfully:\n");
             print_datagram(&received_dg);

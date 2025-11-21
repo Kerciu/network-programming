@@ -8,7 +8,7 @@ import socket
 class UDPClient:
 
     def __init__(self, params: ServerParams) -> None:
-        self.BUFFER_SIZE = 1024
+        self.BUFFER_SIZE = Datagram.BUFFER_SIZE
         self.address = params.host
         self.port = params.port
 
@@ -18,7 +18,7 @@ class UDPClient:
         with socket.socket(
             family=socket.AF_INET, type=socket.SOCK_DGRAM
         ) as self.socket:
-            # last_msg_len = 0
+            last_msg_len = 0
             for msg in messages:
                 try:
                     encoded = Datagram.encode(msg)
@@ -30,17 +30,21 @@ class UDPClient:
 
                     print(f"[CLIENT] Response: {decoded}")
 
-                    if check_overflow and decoded["status"] != "OK":
-                        # if check_overflow and (msg_len > int(decoded["dg_size"]) or last_msg_len == msg_len):
+                    if (
+                        check_overflow
+                        and decoded["status"] != "OK"
+                        and (
+                            msg_len > int(decoded["dg_size"]) or last_msg_len == msg_len
+                        )
+                    ):
                         print("=" * 50)
                         print(f"Server max capacity is {decoded['dg_size']}")
                         break
 
                 except Exception as e:
                     print(f"ERROR: {e}")
-                    break
 
-                # last_msg_len = msg_len
+                last_msg_len = msg_len
 
         print("[CLIENT] Done.")
 
