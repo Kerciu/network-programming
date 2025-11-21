@@ -26,6 +26,11 @@ clang c-server-client udp-client.c -o client
 
 `inet_ntoa` - inet network to address cast
 
+`hints` - host internet structure ?
+
+
+`getaddrinfo()` used instead of `gethostbyname`2`()` beacuse `gethostbyname()` is deprecated
+
 ### Wykorzystane źródła:
 * https://www.linuxhowtos.org/C_C++/socket.htm
 * https://www.geeksforgeeks.org/c/socket-programming-cc/

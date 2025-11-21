@@ -1,16 +1,18 @@
 #include "datagram.h"
 
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <unistd.h>
 
 #define SERVER_HOST "z53_udp_server_py"
-#define SERVER_PORT 2137
+#define SERVER_PORT "2137"
 
 
 int main() {
 
     int socketfd;
-    struct sockaddr_in server_addr;
+    struct addrinfo hints, *res;
     char buffer[MAX_BUFFER_SIZE];
     int recv_len;
 
@@ -19,10 +21,17 @@ int main() {
         return 1;
     }
 
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(SERVER_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    int addr_info;
+
+    if ((addr_info = getaddrinfo(SERVER_HOST, SERVER_PORT, &hints, &res)) ) {
+        fprintf(stderr, "getaddrinfo(%s:%s): %s\n", SERVER_HOST, SERVER_PORT, gai_strerror(addr_info));
+        close(socketfd);
+        return 1;
+    }
+    printf("[CLIENT] Host address resolved...\n");
 
     struct Datagram messages[3];
 
@@ -51,7 +60,7 @@ int main() {
             continue;
         }
 
-        if (sendto(socketfd, buffer, encoded_len, 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        if (sendto(socketfd, buffer, encoded_len, 0, res->ai_addr, res->ai_addrlen) < 0) {
             fprintf(stderr, "[CLIENT] sendto did not succeed\n");
             continue;
         }
@@ -77,5 +86,6 @@ int main() {
     printf("\n[CLIENT] Ended.\n");
 
     close(socketfd);
+    freeaddrinfo(res);
     return 0;
 }
