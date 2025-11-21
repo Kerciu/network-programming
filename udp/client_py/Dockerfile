@@ -2,6 +2,8 @@ FROM python:3.9
 
 WORKDIR /app
 
-COPY . .
+COPY client_py/ .
+COPY datagram.py .
+COPY params.py .
 
 CMD ["python3", "udp-client.py"]

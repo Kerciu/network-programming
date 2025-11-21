@@ -2,7 +2,8 @@ FROM gcc:4.9
 
 WORKDIR /app
 
-COPY . .
+COPY server_c/ .
+COPY datagram.h .
 
 RUN gcc -o server_c_app udp-server.c -std=c11
 

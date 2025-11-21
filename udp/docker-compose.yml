@@ -1,7 +1,9 @@
 services:
   server_c:
     image: z53_server_c_image
-    build: ./server_c
+    build:
+      context: .
+      dockerfile: server_c/Dockerfile
     container_name: z53_udp_server_c
     networks:
       - psi_network
@@ -11,7 +13,9 @@ services:
 
   client_py:
     image: z53_client_py_image
-    build: ./client_py
+    build:
+      context: .
+      dockerfile: client_py/Dockerfile
     container_name: z53_udp_client_py
     networks:
       - psi_network
@@ -23,7 +27,9 @@ services:
 
   server_py:
     image: z53_server_py_image
-    build: ./server_py
+    build:
+      context: .
+      dockerfile: server_py/Dockerfile
     container_name: z53_udp_server_py
     networks:
       - psi_network
@@ -33,7 +39,9 @@ services:
 
   client_c:
     image: z53_client_c_image
-    build: ./client_c
+    build:
+      context: .
+      dockerfile: client_c/Dockerfile
     container_name: z53_udp_client_c
     networks:
       - psi_network
