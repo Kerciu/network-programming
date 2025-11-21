@@ -69,6 +69,7 @@ class UDPClient:
                 response, _ = self.socket.recvfrom(self.BUFFER_SIZE)
                 decoded = Datagram.decode(response)
             except Exception as e:
+                print(f"Communication MTP_ERROR occourred - datagram too long")
                 decoded["status"] == "MTP_ERROR"
 
             if decoded.get("status") == "MTP_ERROR":
