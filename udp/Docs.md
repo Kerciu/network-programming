@@ -1,23 +1,18 @@
 # Sprawozdanie
 
+[0–1]   uint16 - num of pairs (N)
+for every pair:
+[2 + i*(20+20)]      20 ASCII bytes – name
+[2 + i*(20+20)+20]   20 ASCII bytes – value
+
 ## Server-Client use:
-- python:
 ```
-python3 python-server-client udp-server.py
-python3 python-server-client udp-client.py
+docker-compose up --build
 ```
 
-- c:
-```
-[instead of clang can be used other compiler like gcc]
-clang c-server-client udp-server.c -o server
-./server
+## Dictionary
+* names are completly made up by Kuba and probably wrong but made me understand and remember functions :P
 
-clang c-server-client udp-client.c -o client
-./client
-```
-
-## Dictionary:
 `socketfd` - socket file descriptor
 
 `htons` - [h]ost [to] [n]etwork [s]tructure
@@ -28,8 +23,8 @@ clang c-server-client udp-client.c -o client
 
 `hints` - host internet structure ?
 
+`getaddrinfo()` used instead of `gethostbyname2()` showed on tutorials as `gethostbyname2()` is deprecated
 
-`getaddrinfo()` used instead of `gethostbyname`2`()` beacuse `gethostbyname()` is deprecated
 
 ### Wykorzystane źródła:
 * https://www.linuxhowtos.org/C_C++/socket.htm
