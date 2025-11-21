@@ -8,7 +8,7 @@
 
 
 #define FIELD_LENGTH 20
-#define MAX_PAIRS 50
+#define MAX_PAIRS 100
 #define MAX_BUFFER_SIZE 1024
 
 #define error(msg) {perror(msg); exit(1);}

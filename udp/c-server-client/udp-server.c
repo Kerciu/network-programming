@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+// #define SERVER_HOST "z53_udp_server"
 #define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 2138
 
@@ -34,7 +35,7 @@ int main() {
 
     while (1) {
         recv_len = recvfrom(socketfd, buffer, MAX_BUFFER_SIZE, 0, (struct sockaddr*)&client_addr, &client_addr_len);
-        printf("Received buffer size: %zu", sizeof(recv_len));
+        printf("Received buffer size: %d\n", recv_len);
 
         if (recv_len < 0) {
             fprintf(stderr, "Could not recive datagram\n");
