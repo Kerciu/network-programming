@@ -6,9 +6,6 @@ import socket
 import sys
 
 
-TIMEOUT = 5
-
-
 class UDPServer(Server):
     def listen(self) -> None:
         with socket.socket(
