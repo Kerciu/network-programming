@@ -23,7 +23,6 @@ class UDPClient:
         ) as self.socket:
             self.socket.setsockopt(socket.IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_DO)
             last_msg_len = 0
-            last_msg = messages[0]
             for msg in messages:
                 try:
                     encoded = Datagram.encode(msg)
@@ -42,7 +41,6 @@ class UDPClient:
                     break
 
                 last_msg_len = msg_len
-                last_msg = msg
 
         print("[CLIENT] Done.")
 
@@ -50,16 +48,19 @@ class UDPClient:
         while first_fail_len - last_ok_len > 1:
             middle_len = (last_ok_len + first_fail_len) // 2
             bytes_to_encode = middle_len - 2
+            print("To encode: %s" % bytes_to_encode)
 
             if bytes_to_encode <= 0:
                 first_fail_len = middle_len
                 continue
 
             pairs = bytes_to_encode // (2 * Datagram.FIELDS_LENGTH)
+            print("Pairs: %s" % pairs)
             if bytes_to_encode % (2 * Datagram.FIELDS_LENGTH):
                 pairs += 1
 
             dg = f"{pairs}" + "a" * bytes_to_encode
+            print("dg size: %s" % len(dg))
             dg = dg.encode("ascii")
 
             try:
