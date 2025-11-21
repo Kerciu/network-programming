@@ -61,7 +61,7 @@ static int decode_datagram(const char* buffer, size_t data_len, struct Datagram*
     dg->pair_count = ntohs(pair_count_net);
 
     if (dg->pair_count > MAX_PAIRS) {
-        fprintf(stderr, "Error: Datagram declares %d pairs (max %d).\n", dg->pair_count, MAX_PAIRS);
+        fprintf(stderr, "Error: Some data might have been lost - datagram declares %d pairs (max %d).\n", dg->pair_count, MAX_PAIRS);
         return -1;
     }
 

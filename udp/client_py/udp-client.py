@@ -37,6 +37,7 @@ class UDPClient:
                 except Exception as e:
                     print("========================================================")
                     print(f"Communication MTP_ERROR occourred\n")
+                    print("========================================================")
                     if check_overflow:
                         self._find_max_capacity(last_msg_len, msg_len)
                     break
@@ -52,20 +53,18 @@ class UDPClient:
         while first_fail_len - last_ok_len > 1:
             middle_len = (last_ok_len + first_fail_len) // 2
             bytes_to_encode = middle_len - 2
-            print("To encode: %s" % bytes_to_encode)
 
             if bytes_to_encode <= 0:
                 first_fail_len = middle_len
                 continue
 
             pairs = bytes_to_encode // (2 * Datagram.FIELDS_LENGTH)
-            print("Pairs: %s" % pairs)
             if bytes_to_encode % (2 * Datagram.FIELDS_LENGTH):
                 pairs += 1
 
             dg = f"{pairs}" + "a" * bytes_to_encode
-            print("dg size: %s" % len(dg))
             dg = dg.encode("ascii")
+            print("Datagram size: %s" % len(dg))
 
             try:
                 self.socket.sendto(dg, (self.address, self.port))
@@ -75,6 +74,8 @@ class UDPClient:
             except Exception as e:
                 print(f"[CLIENT] Communication MTP_ERROR occourred - datagram too long")
                 decoded["status"] = "MTP_ERROR"
+
+            print(f"Communication status: {decoded["status"]}")
 
             if decoded.get("status") == "MTP_ERROR":
                 first_fail_len = middle_len
