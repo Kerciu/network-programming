@@ -27,7 +27,7 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
     }
 
     size_t required_len = 2 + (size_t)dg->pair_count * (2 * FIELD_LENGTH);
-    if (buffer_len != required_len) {
+    if (buffer_len < required_len) {
         fprintf(stderr, "Error: Buffer to small to encode.\n");
         return -1;
     }
