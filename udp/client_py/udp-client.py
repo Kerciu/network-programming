@@ -35,7 +35,7 @@ class UDPClient:
                     print(f"[CLIENT] Response: {decoded}")
 
                 except Exception as e:
-                    print(f"ERROR occourred")
+                    print(f"Communication MTP_ERROR occourred")
                     if check_overflow:
                         self._find_max_capacity(last_msg_len, msg_len)
                     break
@@ -69,11 +69,11 @@ class UDPClient:
                 response, _ = self.socket.recvfrom(self.BUFFER_SIZE)
                 decoded = Datagram.decode(response)
             except Exception as e:
-                decoded["status"] = "ERROR"
+                decoded["status"] == "MTP_ERROR"
 
             if decoded.get("status") == "OK":
                 last_ok_len = middle_len
-            else:
+            elif decoded.get("status") == "MTP_ERROR":
                 first_fail_len = middle_len
 
         print(f"Max server capacity is {last_ok_len} bytes")
