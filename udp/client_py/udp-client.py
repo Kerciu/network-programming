@@ -75,7 +75,7 @@ class UDPClient:
                 print(f"[CLIENT] Communication MTP_ERROR occourred - datagram too long")
                 decoded["status"] = "MTP_ERROR"
 
-            print(f"Communication status: {decoded["status"]}")
+            print(f"Communication status: {decoded['status']}")
 
             if decoded.get("status") == "MTP_ERROR":
                 first_fail_len = middle_len
