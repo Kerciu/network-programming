@@ -50,8 +50,7 @@ class UDPClient:
 
 
 if __name__ == "__main__":
-    # SERVER_HOST = "z53_udp_server"
-    SERVER_HOST = "127.0.0.1"
+    SERVER_HOST = "z53_udp_server_c"
     SERVER_PORT = 2138
 
     server = UDPClient(ServerParams(host=SERVER_HOST, port=SERVER_PORT))

@@ -3,8 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-// #define SERVER_HOST "z53_udp_server"
-#define SERVER_HOST "127.0.0.1"
+#define SERVER_HOST "z53_udp_server_c" 
 #define SERVER_PORT 2138
 
 int main() {

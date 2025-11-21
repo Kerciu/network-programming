@@ -41,8 +41,7 @@ class UDPServer(Server):
 
 
 if __name__ == "__main__":
-    # SERVER_HOST = "z53_udp_server"
-    SERVER_HOST = "127.0.0.1"
+    SERVER_HOST = "z53_udp_server_py"
     SERVER_PORT = 2137
 
     server = UDPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))

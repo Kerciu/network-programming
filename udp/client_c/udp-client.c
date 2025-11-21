@@ -1,10 +1,10 @@
-#include "udp/datagram.h"
+#include "../datagram.h"
 
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SERVER_HOST "127.0.0.1"
-#define SERVER_PORT 2138
+#define SERVER_HOST "z53_udp_server_py"
+#define SERVER_PORT 2137
 
 
 int main() {
