@@ -6,7 +6,7 @@ class Datagram:
 
     NETWORK_BIG_ENDIAN_FORMAT = "!H"
     FIELDS_LENGTH = 20
-    MAX_PAIRS = 99
+    MAX_PAIRS = 100
     BUFFER_SIZE = 65507
 
     @staticmethod

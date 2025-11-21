@@ -23,6 +23,7 @@ class UDPClient:
         ) as self.socket:
             self.socket.setsockopt(socket.IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_DO)
             last_msg_len = 0
+            last_msg = messages[0]
             for msg in messages:
                 try:
                     encoded = Datagram.encode(msg)
@@ -34,23 +35,41 @@ class UDPClient:
 
                     print(f"[CLIENT] Response: {decoded}")
 
-                    if (
-                        check_overflow
-                        and decoded["status"] != "OK"
-                        and (
-                            msg_len > int(decoded["dg_size"]) or last_msg_len == msg_len
-                        )
-                    ):
-                        print("=" * 50)
-                        print(f"Server max capacity is {decoded['dg_size']}")
-                        break
-
                 except Exception as e:
                     print(f"ERROR: {e}")
+                    if check_overflow:
+                        self._find_max_capacity(last_msg_len, msg_len)
+                    break
 
                 last_msg_len = msg_len
+                last_msg = msg
 
         print("[CLIENT] Done.")
+
+    def _find_max_capacity(self, last_ok_len, first_fail_len):
+        while first_fail_len - last_ok_len > 1:
+            middle_len = (last_ok_len + first_fail_len) // 2
+            bytes_to_encode = middle_len - 2
+            pairs = bytes_to_encode // (2 * Datagram.FIELDS_LENGTH)
+            if bytes_to_encode % (2 * Datagram.FIELDS_LENGTH):
+                pairs += 1
+            dg = "{pairs}".format(pairs) + "a" * bytes_to_encode
+            try:
+                self.socket.sendto(dg, (self.address, self.port))
+
+                response, _ = self.socket.recvfrom(self.BUFFER_SIZE)
+                decoded = Datagram.decode(response)
+            except Exception as e:
+                decoded["status"] = "ERROR"
+
+            if decoded["status"] == "OK":
+                last_ok_len = middle_len
+            else:
+                first_fail_len = middle_len
+
+        print(f"Max server capacity is {last_ok_len} bytes")
+
+
 
 
 if __name__ == "__main__":
