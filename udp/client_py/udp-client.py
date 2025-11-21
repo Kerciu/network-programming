@@ -36,7 +36,7 @@ class UDPClient:
                     print(f"[CLIENT] Response: {decoded}")
 
                 except Exception as e:
-                    print(f"ERROR: {e}")
+                    print(f"ERROR occourred")
                     if check_overflow:
                         self._find_max_capacity(last_msg_len, msg_len)
                     break
@@ -60,6 +60,7 @@ class UDPClient:
                 pairs += 1
 
             dg = f"{pairs}" + "a" * bytes_to_encode
+            dg = dg.encode("ascii")
 
             try:
                 self.socket.sendto(dg, (self.address, self.port))
