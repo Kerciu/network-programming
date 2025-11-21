@@ -71,10 +71,10 @@ class UDPClient:
             except Exception as e:
                 decoded["status"] == "MTP_ERROR"
 
-            if decoded.get("status") == "OK":
-                last_ok_len = middle_len
-            elif decoded.get("status") == "MTP_ERROR":
+            if decoded.get("status") == "MTP_ERROR":
                 first_fail_len = middle_len
+            else:
+                last_ok_len = middle_len
 
         print(f"Max server capacity is {last_ok_len} bytes")
 
