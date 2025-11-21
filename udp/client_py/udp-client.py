@@ -4,6 +4,9 @@ from datagram import Datagram
 
 import socket
 
+IP_MTU_DISCOVER = 10
+IP_PMTUDISC_DO = 2  # forces no dg fragmentation
+
 
 class UDPClient:
 
@@ -18,6 +21,7 @@ class UDPClient:
         with socket.socket(
             family=socket.AF_INET, type=socket.SOCK_DGRAM
         ) as self.socket:
+            self.socket.setsockopt(socket.IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_DO)
             last_msg_len = 0
             for msg in messages:
                 try:

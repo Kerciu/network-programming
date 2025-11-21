@@ -21,6 +21,13 @@ int main() {
         return 1;
     }
 
+    int df = IP_PMTUDISC_DO;
+    if (setsockopt(socketfd, IPPROTO_IP, IP_MTU_DISCOVER, &df, sizeof(df)) < 0) {
+        fprintf(stderr, "Failed to disable datagram fragmentation\n");
+        close(socketfd);
+        return 1;
+    }
+
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
