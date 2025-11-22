@@ -1,4 +1,5 @@
 #include "datagram.h"
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -9,6 +10,7 @@
 #define TIMEOUT_SEC 2
 
 int main(int argc, char *argv[]) {
+
     int socketfd;
     struct sockaddr_in6 server_addr;
     char buffer[MAX_BUFFER_SIZE];
@@ -25,24 +27,24 @@ int main(int argc, char *argv[]) {
     printf("[CLIENT] Starting...\n");
 
     if ((socketfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
-        perror("socket");
+        fprintf(stderr, "[CLIENT] Failed to open socket\n");
         return 1;
     }
-
-    const char* server_ip = argv[1];
 
     tv.tv_sec = TIMEOUT_SEC;
     tv.tv_usec = 0;
     if (setsockopt(socketfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
-        perror("setsockopt");
+        fprintf(stderr, "[CLIENT] timeout set error\n");
+        close(socketfd);
         return 1;
     }
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin6_family = AF_INET6;
     server_addr.sin6_port = htons(SERVER_PORT);
-    if (inet_pton(AF_INET6, server_ip, &server_addr.sin6_addr) <= 0) {
-        perror("inet_pton");
+    if (inet_pton(AF_INET6, argv[1], &server_addr.sin6_addr) <= 0) {
+        fprintf(stderr, "[CLIENT] Invalid address\n");
+        close(socketfd);
         return 1;
     }
 
@@ -74,12 +76,12 @@ int main(int argc, char *argv[]) {
 
             int encoded_len = encode_datagram(&messages[i], buffer + 1, MAX_BUFFER_SIZE - 1);
             if (encoded_len < 0) {
-                fprintf(stderr, "[CLIENT] Encoding error\n");
+                fprintf(stderr, "[CLIENT] Could not encode message %d\n", i + 1);
                 break;
             }
 
             if (sendto(socketfd, buffer, encoded_len + 1, 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-                perror("sendto");
+                fprintf(stderr, "[CLIENT] sendto did not succeed\n");
             } else {
                 printf("[CLIENT] Sent packet, waiting for ACK...\n");
             }
@@ -93,7 +95,7 @@ int main(int argc, char *argv[]) {
                     printf("[CLIENT] Timeout. Retransmitting...\n");
                     continue;
                 } else {
-                    perror("recvfrom");
+                    fprintf(stderr, "[CLIENT] recvfrom did not succeed\n");
                     break;
                 }
             }
