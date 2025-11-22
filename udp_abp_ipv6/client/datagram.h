@@ -52,7 +52,7 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
 
 static int decode_datagram(const char* buffer, size_t data_len, struct Datagram* dg) {
     if (data_len < 2) {
-        fprintf(stderr, "Errpr: Datagram too short (less than 2 bytes).\n");
+        fprintf(stderr, "Error: Datagram too short (less than 2 bytes).\n");
         return -1;
     }
 
