@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #define SERVER_PORT 2137
 #define TIMEOUT_SEC 2
