@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
             if (sendto(socketfd, buffer, encoded_len + 1, 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
                 fprintf(stderr, "[CLIENT] sendto did not succeed\n");
             } else {
-                printf("[CLIENT] Sent packet, waiting for ACK...\n");
+                printf("[CLIENT] Packet sent, waiting for ACK...\n");
             }
 
             struct sockaddr_in6 from_addr;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 
             if (recv_len < 0) {
                 if (errno == EWOULDBLOCK || errno == EAGAIN) {
-                    printf("[CLIENT] Timeout. Retransmitting...\n");
+                    printf("[CLIENT] Timeout, retrying...\n");
                     continue;
                 } else {
                     fprintf(stderr, "[CLIENT] recvfrom did not succeed\n");
