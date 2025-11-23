@@ -1,30 +1,28 @@
-version: "3.8"
-
 services:
-  server:
-    build: ./server
-    container_name: z53_udp_server
-    image: z53_server_img
-    cap_add:
-      - NET_ADMIN
+
+  server_py:
+    image: z53_server_abp_py_image
+    build: ./server_py
+    container_name: z53_udp_abp_server_py
     networks:
       z53_network:
         ipv6_address: fd00:1032:ac21:53::2
-    command: ["python", "-u", "udp_server_ipv6.py"]
-
-  client:
-    build: ./client
-    container_name: z53_udp_client
-    image: z53_client_img
+    tty: true
     cap_add:
       - NET_ADMIN
+
+  client_c:
+    image: z53_client_abp_c_image
+    build: ./client_c
+    container_name: z53_udp_abp_client_c
     networks:
       z53_network:
         ipv6_address: fd00:1032:ac21:53::3
-    stdin_open: true
     tty: true
+    cap_add:
+      - NET_ADMIN
     depends_on:
-      - server
+      - server_py
     command: ["./client", "fd00:1032:ac21:53::2"]
 
 networks:
