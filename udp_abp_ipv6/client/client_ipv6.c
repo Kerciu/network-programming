@@ -22,10 +22,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    printf("[CLIENT] Waiting 5 seconds...\n");
-    sleep(5);
-    printf("[CLIENT] Starting...\n");
-
     if ((socketfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
         fprintf(stderr, "[CLIENT] Failed to open socket\n");
         return 1;
