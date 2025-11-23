@@ -2,7 +2,7 @@ services:
 
   server_py:
     image: z53_server_abp_py_image
-    build: ./server_py
+    build: ./server
     container_name: z53_udp_abp_server_py
     networks:
       z53_network:
@@ -13,7 +13,7 @@ services:
 
   client_c:
     image: z53_client_abp_c_image
-    build: ./client_c
+    build: ./client
     container_name: z53_udp_abp_client_c
     networks:
       z53_network:
