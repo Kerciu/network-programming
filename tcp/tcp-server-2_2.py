@@ -4,7 +4,7 @@ from server import Server
 
 import threading
 import socket
-import time
+#import time
 
 
 class TCPServer(Server):
@@ -14,8 +14,8 @@ class TCPServer(Server):
 
     def handle_client(self, conn: socket.socket, addr: tuple) -> None:
         print(f"[SERVER] Connected with {addr}")
-        print(f"[SERVER] 5 sec delay for testing...")
-        time.sleep(5)
+        #print(f"[SERVER] 5 sec delay for testing...")
+        #time.sleep(5)
         with conn:
             try:
                 data = conn.recv(self.buffer_size)
