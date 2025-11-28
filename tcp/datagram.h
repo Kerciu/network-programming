@@ -23,7 +23,7 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
     size_t required_len = HEADER_SIZE + text_len;
 
     if (buffer_len < required_len) {
-        fprintf(stderr, "Error: Buffer too small to encode.\n");
+        fprintf(stderr, "Error: Buffer too small\n");
         return -1;
     }
 
@@ -44,11 +44,4 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
     memcpy(ptr, dg->text, text_len);
 
     return (int)required_len;
-}
-
-static void print_datagram(const struct Datagram* dg) {
-    printf("Decoded datagram:\n");
-    printf("16-bit:%d\n", dg->val_s);
-    printf("32-bit:%d\n", dg->val_i);
-    printf("text:'%s'\n", dg->text);
 }

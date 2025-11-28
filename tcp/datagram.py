@@ -30,7 +30,7 @@ class Datagram:
     @staticmethod
     def decode(data: bytes) -> "Datagram":
         if len(data) < Datagram.HEADER_SIZE:
-            raise Exception("Datagram too short - header missing")
+            raise Exception("Datagram too short")
 
         val_s, val_i, text_len = struct.unpack(
             Datagram.NETWORK_BIG_ENDIAN_FORMAT,
