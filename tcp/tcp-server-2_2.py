@@ -66,7 +66,7 @@ class ThreadedTCPServer(Server):
 
 
 if __name__ == "__main__":
-    SERVER_HOST = "z53_udp_server_py"
+    SERVER_HOST = "z53_tcp_server"
     SERVER_PORT = 2137
     server = ThreadedTCPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
     server.listen()

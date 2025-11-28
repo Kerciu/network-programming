@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SERVER_HOST "127.0.0.1"
+#define SERVER_HOST "z53_tcp_server"
 #define SERVER_PORT 2137
 
 
