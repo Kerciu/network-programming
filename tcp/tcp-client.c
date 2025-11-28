@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SERVER_HOST "z53_udp_server_py"
+#define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 2137
 
 
@@ -28,16 +28,16 @@ int main() {
         return 1;
     }
 
-    struct Datagram d3 = { 33, 333333, "Node 3 (tail)", NULL };
-    struct Datagram d2 = { 22, 222222, "Node 2", &d3 };
-    struct Datagram d1 = { 11, 111111, "Node 1 (head)", &d2 };
+    struct Datagram d3 = { 30, 300000, "Node 3 (tail)", NULL };
+    struct Datagram d2 = { 20, 200000, "Node 2", &d3 };
+    struct Datagram d1 = { 10, 100000, "Node 1 (head)", &d2 };
 
     int count = 3;
     printf("[CLIENT] Sending list of %d elements...\n", count);
 
     int count_net = htonl(count);
     if (write(socketfd, &count_net, 4) < 0) {
-        fprintf(stderr, "[CLIENT] Failed to send count\n");
+        fprintf(stderr, "[CLIENT] Sending failed\n");
     }
 
     struct Datagram* curr = &d1;
@@ -53,7 +53,7 @@ int main() {
         }
 
         if (write(socketfd, buffer, encoded_len) < 0) {
-            fprintf(stderr, "[CLIENT] write did not succeed\n");
+            fprintf(stderr, "[CLIENT] Write failed\n");
             break;
         }
 
