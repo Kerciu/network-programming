@@ -5,6 +5,7 @@ from server import Server
 import socket
 import struct
 import threading
+import time # used for testing
 
 
 class ThreadedTCPServer(Server):
@@ -44,6 +45,7 @@ class ThreadedTCPServer(Server):
                 print(f"[SERVER] Expecting {count} datagrams")
 
                 for i in range(count):
+                    time.sleep(1)
                     header = self._recv_all(conn, Datagram.HEADER_SIZE)
                     if not header: break
 
