@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  server_py:
+    image: z53_server_py_image
+    build: ./server
+    container_name: z53_tcp_server
+    hostname: z53_tcp_server
+    networks:
+      - psi_network
+    tty: true
+    cap_add:
+      - NET_ADMIN
+
+  client_1:
+    image: z53_client_c_image
+    build: ./client
+    container_name: z53_client_1
+    networks:
+      - psi_network
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - server_py
+
+  client_2:
+    image: z53_client_c_image
+    build: ./client
+    container_name: z53_client_2
+    networks:
+      - psi_network
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - server_py
+
+networks:
+  psi_network:
+    external: true
+    name: z53_network
