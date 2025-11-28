@@ -16,7 +16,7 @@ class TCPServer(Server):
 
             while True:
                 conn, address = self.socket.accept()
-                print(f"[SERVER] Connected by {address}")
+                print(f"[SERVER] Accepted {address}")
                 self.handle_client(conn)
 
     def handle_client(self, conn):
@@ -36,7 +36,7 @@ class TCPServer(Server):
                     body = self._recv_all(conn, txt_len)
 
                     decoded = Datagram.decode(header + body)
-                    print(f"[SERVER] Decoded {i+1}: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+                    print(f"[SERVER] Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
 
             except Exception as e:
                 print(f"[SERVER] Error: {e}")

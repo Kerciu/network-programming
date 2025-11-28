@@ -23,7 +23,7 @@ class ThreadedTCPServer(Server):
             try:
                 while True:
                     conn, address = self.socket.accept()
-                    print(f"[SERVER] Connected by {address}")
+                    print(f"[SERVER] Accepted {address}")
 
                     t = threading.Thread(target=self.handle_client, args=(conn, address))
                     t.start()
@@ -41,7 +41,7 @@ class ThreadedTCPServer(Server):
                 if not count_bytes: return
 
                 count = struct.unpack("!I", count_bytes)[0]
-                print(f"[{address}] Expecting {count} datagrams")
+                print(f"[SERVER] Expecting {count} datagrams")
 
                 for i in range(count):
                     header = self._recv_all(conn, Datagram.HEADER_SIZE)
@@ -51,10 +51,10 @@ class ThreadedTCPServer(Server):
                     body = self._recv_all(conn, txt_len)
 
                     decoded = Datagram.decode(header + body)
-                    print(f"[{address}] Decoded {i+1}: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+                    print(f"[SERVER] Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
 
             except Exception as e:
-                print(f"[{address}] Error: {e}")
+                print(f"[SERVER] Error: {e}")
 
     def _recv_all(self, sock, n):
         data = b""
