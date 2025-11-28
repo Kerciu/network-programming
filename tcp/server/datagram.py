@@ -18,10 +18,7 @@ class Datagram:
         text_bytes = dg.text.encode("ascii")
 
         result = struct.pack(
-            Datagram.NETWORK_BIG_ENDIAN_FORMAT,
-            dg.val_s,
-            dg.val_i,
-            len(text_bytes)
+            Datagram.NETWORK_BIG_ENDIAN_FORMAT, dg.val_s, dg.val_i, len(text_bytes)
         )
 
         result += text_bytes
@@ -33,10 +30,11 @@ class Datagram:
             raise Exception("Datagram too short")
 
         val_s, val_i, text_len = struct.unpack(
-            Datagram.NETWORK_BIG_ENDIAN_FORMAT,
-            data[:Datagram.HEADER_SIZE]
+            Datagram.NETWORK_BIG_ENDIAN_FORMAT, data[: Datagram.HEADER_SIZE]
         )
 
-        text = data[Datagram.HEADER_SIZE : Datagram.HEADER_SIZE + text_len].decode("ascii")
+        text = data[Datagram.HEADER_SIZE : Datagram.HEADER_SIZE + text_len].decode(
+            "ascii"
+        )
 
         return Datagram(val_s, val_i, text)

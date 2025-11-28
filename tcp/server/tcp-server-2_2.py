@@ -5,7 +5,7 @@ from server import Server
 import socket
 import struct
 import threading
-import time # used for testing
+import time  # used for testing
 
 
 class ThreadedTCPServer(Server):
@@ -26,7 +26,9 @@ class ThreadedTCPServer(Server):
                     conn, address = self.socket.accept()
                     print(f"[SERVER] Accepted {address}")
 
-                    t = threading.Thread(target=self.handle_client, args=(conn, address))
+                    t = threading.Thread(
+                        target=self.handle_client, args=(conn, address)
+                    )
                     t.start()
                     self.threads.append(t)
 
@@ -39,21 +41,27 @@ class ThreadedTCPServer(Server):
         with conn:
             try:
                 count_bytes = self._recv_all(conn, 4)
-                if not count_bytes: return
+                if not count_bytes:
+                    return
 
                 count = struct.unpack("!I", count_bytes)[0]
                 print(f"[SERVER] Expecting {count} datagrams from {address}")
 
                 for i in range(count):
-                    #time.sleep(1) # Used for testing
+                    # time.sleep(1) # Used for testing
                     header = self._recv_all(conn, Datagram.HEADER_SIZE)
-                    if not header: break
+                    if not header:
+                        break
 
-                    _, _, txt_len = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, header)
+                    _, _, txt_len = struct.unpack(
+                        Datagram.NETWORK_BIG_ENDIAN_FORMAT, header
+                    )
                     body = self._recv_all(conn, txt_len)
 
                     decoded = Datagram.decode(header + body)
-                    print(f"[SERVER] Source: {address}, Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+                    print(
+                        f"[SERVER] Source: {address}, Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'"
+                    )
 
             except Exception as e:
                 print(f"[SERVER] Error: {e}")
@@ -62,7 +70,8 @@ class ThreadedTCPServer(Server):
         data = b""
         while len(data) < n:
             packet = sock.recv(n - len(data))
-            if not packet: return None
+            if not packet:
+                return None
             data += packet
         return data
 
