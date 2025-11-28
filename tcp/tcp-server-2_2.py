@@ -4,13 +4,13 @@ from server import Server
 
 import socket
 import struct
-from concurrent.futures import ThreadPoolExecutor
+import threading
 
 
-class ConcurrentTCPServer(Server):
+class ThreadedTCPServer(Server):
     def __init__(self, params):
         super().__init__(params)
-        self.executor = ThreadPoolExecutor(max_workers=5)
+        self.threads = []
 
     def listen(self) -> None:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
@@ -24,9 +24,15 @@ class ConcurrentTCPServer(Server):
                 while True:
                     conn, address = self.socket.accept()
                     print(f"[SERVER] Connected by {address}")
-                    self.executor.submit(self.handle_client, conn, address)
+
+                    t = threading.Thread(target=self.handle_client, args=(conn, address))
+                    t.start()
+                    self.threads.append(t)
+
             except KeyboardInterrupt:
-                self.executor.shutdown(wait=True)
+                print("\n[SERVER] Stopping...")
+                for t in self.threads:
+                    t.join()
 
     def handle_client(self, conn, address):
         with conn:
@@ -62,5 +68,5 @@ class ConcurrentTCPServer(Server):
 if __name__ == "__main__":
     SERVER_HOST = "z53_udp_server_py"
     SERVER_PORT = 2137
-    server = ConcurrentTCPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
+    server = ThreadedTCPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
     server.listen()
