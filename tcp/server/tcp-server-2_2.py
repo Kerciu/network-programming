@@ -45,7 +45,7 @@ class ThreadedTCPServer(Server):
                 print(f"[SERVER] Expecting {count} datagrams from {address}")
 
                 for i in range(count):
-                    time.sleep(1)
+                    #time.sleep(1) # Used for testing
                     header = self._recv_all(conn, Datagram.HEADER_SIZE)
                     if not header: break
 
