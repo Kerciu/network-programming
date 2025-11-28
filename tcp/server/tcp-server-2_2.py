@@ -37,7 +37,7 @@ class ThreadedTCPServer(Server):
                 for t in self.threads:
                     t.join()
 
-    def handle_client(self, conn, address):
+    def handle_client(self, conn: socket, address):
         with conn:
             try:
                 count_bytes = self._recv_all(conn, 4)
@@ -66,7 +66,7 @@ class ThreadedTCPServer(Server):
             except Exception as e:
                 print(f"[SERVER] Error: {e}")
 
-    def _recv_all(self, sock, n):
+    def _recv_all(self, sock: socket, n: int):
         data = b""
         while len(data) < n:
             packet = sock.recv(n - len(data))
