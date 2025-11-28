@@ -19,33 +19,40 @@ class TCPServer(Server):
                 print(f"[SERVER] Accepted {address}")
                 self.handle_client(conn)
 
-    def handle_client(self, conn):
+    def handle_client(self, conn: socket):
         with conn:
             try:
                 count_bytes = self._recv_all(conn, 4)
-                if not count_bytes: return
+                if not count_bytes:
+                    return
 
                 count = struct.unpack("!I", count_bytes)[0]
                 print(f"[SERVER] Expecting {count} datagrams")
 
                 for i in range(count):
                     header = self._recv_all(conn, Datagram.HEADER_SIZE)
-                    if not header: break
+                    if not header:
+                        break
 
-                    _, _, txt_len = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, header)
+                    _, _, txt_len = struct.unpack(
+                        Datagram.NETWORK_BIG_ENDIAN_FORMAT, header
+                    )
                     body = self._recv_all(conn, txt_len)
 
                     decoded = Datagram.decode(header + body)
-                    print(f"[SERVER] Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+                    print(
+                        f"[SERVER] Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'"
+                    )
 
             except Exception as e:
                 print(f"[SERVER] Error: {e}")
 
-    def _recv_all(self, sock, n):
+    def _recv_all(self, sock: socket, n: int):
         data = b""
         while len(data) < n:
             packet = sock.recv(n - len(data))
-            if not packet: return None
+            if not packet:
+                return None
             data += packet
         return data
 
