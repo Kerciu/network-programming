@@ -3,11 +3,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SERVER_HOST "127.0.0.1"
-#define SERVER_PORT 12345
+#define SERVER_HOST "z53_udp_server_py"
+#define SERVER_PORT 2137
 
 
 int main() {
+
     int socketfd;
     struct sockaddr_in server_addr;
     char buffer[MAX_BUFFER_SIZE];
@@ -23,35 +24,44 @@ int main() {
     server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
 
     if (connect(socketfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        fprintf(stderr, "Connection failed\n");
-        close(socketfd);
+        fprintf(stderr, "Failed to connect\n");
         return 1;
     }
 
-    printf("[CLIENT] Connected to server.\n");
+    struct Datagram d3 = { 30, 300000, "Node 3 (tail)", NULL };
+    struct Datagram d2 = { 20, 200000, "Node 2", &d3 };
+    struct Datagram d1 = { 10, 100000, "Node 1 (head)", &d2 };
 
-    struct Datagram msg;
-    msg.node_count = 1;
-    
-    msg.nodes[0].data1 = 123;
-    msg.nodes[0].data2 = 2137;
-    snprintf(msg.nodes[0].str_data, MAX_STR_LEN, "%s", "Hejj ;)");
+    int count = 3;
+    printf("[CLIENT] Sending list of %d elements...\n", count);
 
-    int encoded_len = encode_datagram(&msg, buffer, MAX_BUFFER_SIZE);
-    
-    if (encoded_len < 0) {
-        fprintf(stderr, "[CLIENT] Encoding failed.\n");
-        close(socketfd);
-        return 1;
+    int count_net = htonl(count);
+    if (write(socketfd, &count_net, 4) < 0) {
+        fprintf(stderr, "[CLIENT] Sending failed\n");
     }
 
-    printf("[CLIENT] Sending %d bytes...\n", encoded_len);
+    struct Datagram* curr = &d1;
+    int i = 0;
 
-    if (send(socketfd, buffer, encoded_len, 0) < 0) {
-        fprintf(stderr, "[CLIENT] Send failed.\n");
-    } else {
-        printf("[CLIENT] Data sent successfully.\n");
+    while (curr != NULL) {
+        printf("\n[CLIENT] Sending message %d...\n", i + 1);
+
+        int encoded_len = encode_datagram(curr, buffer, MAX_BUFFER_SIZE);
+        if (encoded_len < 0) {
+            fprintf(stderr, "[CLIENT] Could not encode message %d\n", i + 1);
+            break;
+        }
+
+        if (write(socketfd, buffer, encoded_len) < 0) {
+            fprintf(stderr, "[CLIENT] Write failed\n");
+            break;
+        }
+
+        curr = curr->next;
+        i++;
     }
+
+    printf("\n[CLIENT] Ended.\n");
 
     close(socketfd);
     return 0;

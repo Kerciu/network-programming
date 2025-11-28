@@ -2,34 +2,15 @@ from params import ServerParams
 from datagram import Datagram
 from server import Server
 
-import threading
 import socket
-#import time
+import struct
+from concurrent.futures import ThreadPoolExecutor
 
 
-class TCPServer(Server):
-    def __init__(self, params: ServerParams):
+class ConcurrentTCPServer(Server):
+    def __init__(self, params):
         super().__init__(params)
-        self.threads = []
-
-    def handle_client(self, conn: socket.socket, addr: tuple) -> None:
-        print(f"[SERVER] Connected with {addr}")
-        #print(f"[SERVER] 5 sec delay for testing...")
-        #time.sleep(5)
-        with conn:
-            try:
-                data = conn.recv(self.buffer_size)
-                if data:
-                    decoded = Datagram.decode(data)
-                    print(f"[SERVER] Received {len(decoded)} nodes from {addr}")
-                    
-                    for i, node in enumerate(decoded):
-                        print(f"  - Node {i}: {node}")
-
-            except Exception as e:
-                print(f"[SERVER] Error: {e}")
-        
-        print(f"[SERVER] Connection with {addr} closed")
+        self.executor = ThreadPoolExecutor(max_workers=5)
 
     def listen(self) -> None:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
@@ -41,25 +22,45 @@ class TCPServer(Server):
 
             try:
                 while True:
-                    conn, addr = self.socket.accept()
-                    
-                    t = threading.Thread(target=self.handle_client, args=(conn, addr))
-                    t.start()
-                    
-                    self.threads.append(t)
-                    self.threads = [t for t in self.threads if t.is_alive()]
-
+                    conn, address = self.socket.accept()
+                    print(f"[SERVER] Connected by {address}")
+                    self.executor.submit(self.handle_client, conn, address)
             except KeyboardInterrupt:
-                print("\n[SERVER] Shutting down...")
-            
-            finally:
-                for t in self.threads:
-                    t.join()
+                self.executor.shutdown(wait=True)
+
+    def handle_client(self, conn, address):
+        with conn:
+            try:
+                count_bytes = self._recv_all(conn, 4)
+                if not count_bytes: return
+
+                count = struct.unpack("!I", count_bytes)[0]
+                print(f"[{address}] Expecting {count} datagrams")
+
+                for i in range(count):
+                    header = self._recv_all(conn, Datagram.HEADER_SIZE)
+                    if not header: break
+
+                    _, _, txt_len = struct.unpack(Datagram.NETWORK_BIG_ENDIAN_FORMAT, header)
+                    body = self._recv_all(conn, txt_len)
+
+                    decoded = Datagram.decode(header + body)
+                    print(f"[{address}] Decoded {i+1}: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+
+            except Exception as e:
+                print(f"[{address}] Error: {e}")
+
+    def _recv_all(self, sock, n):
+        data = b""
+        while len(data) < n:
+            packet = sock.recv(n - len(data))
+            if not packet: return None
+            data += packet
+        return data
 
 
 if __name__ == "__main__":
-    SERVER_HOST = "127.0.0.1"
-    SERVER_PORT = 12345
-
-    server = TCPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
+    SERVER_HOST = "z53_udp_server_py"
+    SERVER_PORT = 2137
+    server = ConcurrentTCPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))
     server.listen()

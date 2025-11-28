@@ -1,58 +1,42 @@
-from typing import List, Dict, Any
+from typing import Dict
 import struct
 
 
 class Datagram:
 
-    COUNT_FORMAT = "!I"
-    NODE_FIXED_FORMAT = "!hiH"
-    NODE_FIXED_SIZE = struct.calcsize(NODE_FIXED_FORMAT)
-    BUFFER_SIZE = 65535
+    NETWORK_BIG_ENDIAN_FORMAT = "!hiI"
+    HEADER_SIZE = 10
+    BUFFER_SIZE = 65507
+
+    def __init__(self, val_s, val_i, text):
+        self.val_s = val_s
+        self.val_i = val_i
+        self.text = text
 
     @staticmethod
-    def encode(nodes: List[Dict[str, Any]]) -> bytes:
-        result = struct.pack(Datagram.COUNT_FORMAT, len(nodes))
+    def encode(dg: "Datagram") -> bytes:
+        text_bytes = dg.text.encode("ascii")
 
-        for node in nodes:
-            data1 = int(node["data1"])
-            data2 = int(node["data2"])
-            str_data = str(node["str_data"]).encode("utf-8")
-            str_len = len(str_data)
+        result = struct.pack(
+            Datagram.NETWORK_BIG_ENDIAN_FORMAT,
+            dg.val_s,
+            dg.val_i,
+            len(text_bytes)
+        )
 
-            result += struct.pack(
-                Datagram.NODE_FIXED_FORMAT, data1, data2, str_len
-            )
-            result += str_data
-
+        result += text_bytes
         return result
 
     @staticmethod
-    def decode(data: bytes) -> List[Dict[str, Any]]:
-        if len(data) < 4:
-            raise Exception("Datagram too short")
+    def decode(data: bytes) -> "Datagram":
+        if len(data) < Datagram.HEADER_SIZE:
+            raise Exception("Datagram too short - header missing")
 
-        offset = 0
-        count = struct.unpack(Datagram.COUNT_FORMAT, data[offset : offset + 4])[0]
-        offset += 4
+        val_s, val_i, text_len = struct.unpack(
+            Datagram.NETWORK_BIG_ENDIAN_FORMAT,
+            data[:Datagram.HEADER_SIZE]
+        )
 
-        nodes = []
+        text = data[Datagram.HEADER_SIZE : Datagram.HEADER_SIZE + text_len].decode("ascii")
 
-        for _ in range(count):
-            if offset + Datagram.NODE_FIXED_SIZE > len(data):
-                raise Exception("Incomplete node header")
-
-            data1, data2, str_len = struct.unpack(
-                Datagram.NODE_FIXED_FORMAT,
-                data[offset : offset + Datagram.NODE_FIXED_SIZE],
-            )
-            offset += Datagram.NODE_FIXED_SIZE
-
-            if offset + str_len > len(data):
-                raise Exception("Incomplete string data")
-
-            str_data = data[offset : offset + str_len].decode("utf-8")
-            offset += str_len
-
-            nodes.append({"data1": data1, "data2": data2, "str_data": str_data})
-
-        return nodes
+        return Datagram(val_s, val_i, text)

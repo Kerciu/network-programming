@@ -6,55 +6,49 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#define MAX_NODES 10
-#define MAX_STR_LEN 256
-#define MAX_BUFFER_SIZE 65535
+#define MAX_BUFFER_SIZE 65507
+#define HEADER_SIZE 10
 
-struct Node {
-    short data1;
-    int data2;
-    char str_data[MAX_STR_LEN];
-};
+#define error(msg) {perror(msg); exit(1);}
 
 struct Datagram {
-    unsigned int node_count;
-    struct Node nodes[MAX_NODES];
+    short val_s;
+    int val_i;
+    char* text;
+    struct Datagram* next;
 };
 
 static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffer_len) {
-    char* ptr = buffer;
-    size_t current_len = 0;
+    size_t text_len = strlen(dg->text);
+    size_t required_len = HEADER_SIZE + text_len;
 
-    if (buffer_len < 4) return -1;
-
-    unsigned int count_net = htonl(dg->node_count);
-    memcpy(ptr, &count_net, 4);
-    ptr += 4;
-    current_len += 4;
-
-    for (unsigned int i = 0; i < dg->node_count; i++) {
-        unsigned short str_len = (unsigned short)strlen(dg->nodes[i].str_data);
-        size_t node_size = 2 + 4 + 2 + str_len; 
-
-        if (current_len + node_size > buffer_len) return -1;
-
-        short d1_net = htons(dg->nodes[i].data1);
-        memcpy(ptr, &d1_net, 2);
-        ptr += 2;
-
-        int d2_net = htonl(dg->nodes[i].data2);
-        memcpy(ptr, &d2_net, 4);
-        ptr += 4;
-
-        unsigned short sl_net = htons(str_len);
-        memcpy(ptr, &sl_net, 2);
-        ptr += 2;
-
-        memcpy(ptr, dg->nodes[i].str_data, str_len);
-        ptr += str_len;
-
-        current_len += node_size;
+    if (buffer_len < required_len) {
+        fprintf(stderr, "Error: Buffer too small to encode.\n");
+        return -1;
     }
 
-    return (int)current_len;
+    char* ptr = buffer;
+
+    short val_s_net = htons(dg->val_s);
+    memcpy(ptr, &val_s_net, 2);
+    ptr += 2;
+
+    int val_i_net = htonl(dg->val_i);
+    memcpy(ptr, &val_i_net, 4);
+    ptr += 4;
+
+    int text_len_net = htonl((int)text_len);
+    memcpy(ptr, &text_len_net, 4);
+    ptr += 4;
+
+    memcpy(ptr, dg->text, text_len);
+
+    return (int)required_len;
+}
+
+static void print_datagram(const struct Datagram* dg) {
+    printf("Decoded datagram:\n");
+    printf("16-bit:%d\n", dg->val_s);
+    printf("32-bit:%d\n", dg->val_i);
+    printf("text:'%s'\n", dg->text);
 }
