@@ -42,7 +42,7 @@ class ThreadedTCPServer(Server):
                 if not count_bytes: return
 
                 count = struct.unpack("!I", count_bytes)[0]
-                print(f"[SERVER] Expecting {count} datagrams")
+                print(f"[SERVER] Expecting {count} datagrams from {address}")
 
                 for i in range(count):
                     time.sleep(1)
@@ -53,7 +53,7 @@ class ThreadedTCPServer(Server):
                     body = self._recv_all(conn, txt_len)
 
                     decoded = Datagram.decode(header + body)
-                    print(f"[SERVER] Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
+                    print(f"[SERVER] Source: {address}, Decoded: {decoded.val_s}, {decoded.val_i}, '{decoded.text}'")
 
             except Exception as e:
                 print(f"[SERVER] Error: {e}")
