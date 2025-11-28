@@ -34,11 +34,12 @@ int main() {
         return 1;
     }
 
-    struct Datagram d3 = { 30, 300000, "Node 3 (tail)", NULL };
+    struct Datagram d4 = { 40, 400000, "Node 4 (tail)", NULL };
+    struct Datagram d3 = { 30, 300000, "Node 3", &d4 };
     struct Datagram d2 = { 20, 200000, "Node 2", &d3 };
     struct Datagram d1 = { 10, 100000, "Node 1 (head)", &d2 };
 
-    int count = 3;
+    int count = 4;
     printf("[CLIENT] Sending list of %d elements...\n", count);
 
     int count_net = htonl(count);
