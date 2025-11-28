@@ -2,6 +2,7 @@
 
 #include <sys/socket.h>
 #include <unistd.h>
+#include <netdb.h>
 
 #define SERVER_HOST "z53_tcp_server"
 #define SERVER_PORT 2137
@@ -21,7 +22,12 @@ int main() {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(SERVER_PORT);
-    server_addr.sin_addr.s_addr = inet_addr(SERVER_HOST);
+    struct hostent *server = gethostbyname(SERVER_HOST);
+    if (server == NULL) {
+        fprintf(stderr, "ERROR: no host found\n");
+        return 1;
+    }
+    memcpy((char *)&server_addr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
 
     if (connect(socketfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         fprintf(stderr, "Failed to connect\n");
