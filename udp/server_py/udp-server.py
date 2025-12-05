@@ -3,9 +3,7 @@ from datagram import Datagram
 from server import Server
 
 import socket
-
-
-TIMEOUT = 5
+import sys
 
 
 class UDPServer(Server):
@@ -25,13 +23,14 @@ class UDPServer(Server):
 
                 try:
                     decoded = Datagram.decode(data)
+                    msg = "OK"
                     print(f"[SERVER] Decoded: {decoded}")
 
-                    response = Datagram.encode({"status": "OK"})
-
                 except Exception as e:
+                    msg = "ERROR"
                     print(f"[SERVER] Error: {e}")
-                    response = Datagram.encode({"status": "ERROR"})
+
+                response = Datagram.encode({"status": msg, "dg_size": f"{len(data)}"})
 
                 self.socket.sendto(response, address)
 
@@ -39,7 +38,7 @@ class UDPServer(Server):
 
 
 if __name__ == "__main__":
-    SERVER_HOST = "127.0.0.1"
+    SERVER_HOST = "0.0.0.0"
     SERVER_PORT = 2137
 
     server = UDPServer(ServerParams(host=SERVER_HOST, port=SERVER_PORT))

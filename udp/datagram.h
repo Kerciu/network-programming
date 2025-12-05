@@ -3,33 +3,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 
 #define FIELD_LENGTH 20
-#define MAX_PAIRS 10
-#define MAX_BUFFER_SIZE 1024
+#define MAX_PAIRS 100
+#define MAX_BUFFER_SIZE 65507
 
 #define error(msg) {perror(msg); exit(1);}
 
 
 struct Datagram {
-    unsigned short pair_count; // 2 bytes = short = uint16_t
+    unsigned short pair_count;
     char names[MAX_PAIRS][FIELD_LENGTH + 1];    // one extra place for null terminator
     char values[MAX_PAIRS][FIELD_LENGTH + 1];
 };
 
 static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffer_len) {
     if (dg->pair_count > MAX_PAIRS) {
-        // fprintf(stderr, "Error: Too much pairs to encode.\n");
-        // return -1;
-        error("Error: Too much pairs to encode.\n");
+        fprintf(stderr, "Error: Too much pairs to encode.\n");
+        return -1;
     }
 
     size_t required_len = 2 + (size_t)dg->pair_count * (2 * FIELD_LENGTH);
     if (buffer_len < required_len) {
-        // fprintf(stderr, "Error: Buffer to small to encode.\n");
-        // return -1;
-        error("Error: Buffer to small to encode.\n")
+        fprintf(stderr, "Error: Buffer to small to encode.\n");
+        return -1;
     }
 
     unsigned short pair_count_net = htons(dg->pair_count);
@@ -52,9 +52,8 @@ static int encode_datagram(const struct Datagram* dg, char* buffer, size_t buffe
 
 static int decode_datagram(const char* buffer, size_t data_len, struct Datagram* dg) {
     if (data_len < 2) {
-        // fprintf(stderr, "Errpr: Datagram too short (less than 2 bytes).\n");
-        // return -1;
-        error("Error: Datagram too short (less than 2 bytes).\n");
+        fprintf(stderr, "Errpr: Datagram too short (less than 2 bytes).\n");
+        return -1;
     }
 
     unsigned short pair_count_net;
@@ -62,7 +61,7 @@ static int decode_datagram(const char* buffer, size_t data_len, struct Datagram*
     dg->pair_count = ntohs(pair_count_net);
 
     if (dg->pair_count > MAX_PAIRS) {
-        fprintf(stderr, "Error: Datagram declares %d pairs (max %d).\n", dg->pair_count, MAX_PAIRS);
+        fprintf(stderr, "Error: Some data might have been lost - datagram declares %d pairs (max %d).\n", dg->pair_count, MAX_PAIRS);
         return -1;
     }
 

@@ -1,23 +1,19 @@
 # Sprawozdanie
 
+[0–1]   uint16 - num of pairs (N)
+for every pair:
+[2 + i*(20+20)]      20 ASCII bytes – name
+[2 + i*(20+20)+20]   20 ASCII bytes – value
+
 ## Server-Client use:
-- python:
-```
-python3 python-server-client udp-server.py
-python3 python-server-client udp-client.py
-```
-
-- c:
-```
-[instead of clang can be used other compiler like gcc]
-clang c-server-client udp-server.c -o server
-./server
-
-clang c-server-client udp-client.c -o client
-./client
+* To run and test all services just use prepared docker-compose file 
+```sh
+docker-compose up --build
 ```
 
-## Dictionary:
+## Dictionary
+* names are completly made up by Kuba and probably wrong but made me understand and remember functions :P
+
 `socketfd` - socket file descriptor
 
 `htons` - [h]ost [to] [n]etwork [s]tructure
@@ -25,6 +21,11 @@ clang c-server-client udp-client.c -o client
 `ntohs` - [n]etwork [to] [h]ost [s]tructure
 
 `inet_ntoa` - inet network to address cast
+
+`hints` - host internet structure ?
+
+`getaddrinfo()` used instead of `gethostbyname2()` showed on tutorials as `gethostbyname2()` is deprecated
+
 
 ### Wykorzystane źródła:
 * https://www.linuxhowtos.org/C_C++/socket.htm
